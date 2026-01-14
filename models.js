@@ -6,24 +6,24 @@ export const BLUE = "blue"
 export const BLACK = "#101010"
 
 export const CUBE_MODEL = {
-    vertices :[
-        {x:1, y:1, z:1},
-        {x:1, y:-1, z:1},
-        {x:-1, y:-1, z:1},
-        {x:-1, y:1, z:1},
-    
-        {x:1, y:1, z:-1},
-        {x:1, y:-1, z:-1},
-        {x:-1, y:-1, z:-1},
-        {x:-1, y:1, z:-1},
+    vertices: [
+        { x: 1, y: 1, z: 1 },
+        { x: 1, y: -1, z: 1 },
+        { x: -1, y: -1, z: 1 },
+        { x: -1, y: 1, z: 1 },
+
+        { x: 1, y: 1, z: -1 },
+        { x: 1, y: -1, z: -1 },
+        { x: -1, y: -1, z: -1 },
+        { x: -1, y: 1, z: -1 },
     ],
-    edges : [
-        [0,1,2,3],
-        [4,5,6,7],
-        [1,5],
-        [0,4],
-        [2,6],
-        [3,7],
+    edges: [
+        [0, 1, 2, 3],
+        [4, 5, 6, 7],
+        [1, 5],
+        [0, 4],
+        [2, 6],
+        [3, 7],
     ],
     v_color: RED,
     e_color: GREEN,
@@ -33,18 +33,18 @@ export const CUBE_MODEL = {
 
 
 export const AXIS = {
-    vertices : [
-        {x:0, y:0, z:0},
-        {x:0, y:1, z:1},
-        {x:1, y:0, z:1},
-        {x:0, y:-1, z:1},
-        {x:-1, y:0, z:1},
+    vertices: [
+        { x: 0, y: 0, z: 0 },
+        { x: 0, y: 1, z: 1 },
+        { x: 1, y: 0, z: 1 },
+        { x: 0, y: -1, z: 1 },
+        { x: -1, y: 0, z: 1 },
     ],
-    edges : [
-        [0,1],
-        [0,2],
-        [0,3],
-        [0,4],
+    edges: [
+        [0, 1],
+        [0, 2],
+        [0, 3],
+        [0, 4],
     ],
     v_color: BLUE,
     e_color: GREY,
@@ -203,4 +203,56 @@ export const SPHERE_MODEL = {
     e_size: 2,
 };
 
+export const TORUS_MODEL = {
+    vertices: (() => {
+        const verts = [];
+        const R = 1.5; // Major radius
+        const r = 0.5; // Minor radius
+        const majorSegments = 12;
+        const minorSegments = 6;
 
+        for (let i = 0; i < majorSegments; i++) {
+            const phi = (i / majorSegments) * Math.PI * 2;
+            const cosPhi = Math.cos(phi);
+            const sinPhi = Math.sin(phi);
+
+            for (let j = 0; j < minorSegments; j++) {
+                const theta = (j / minorSegments) * Math.PI * 2;
+                const cosTheta = Math.cos(theta);
+                const sinTheta = Math.sin(theta);
+
+                // Torus on XZ plane
+                verts.push({
+                    x: (R + r * cosTheta) * cosPhi,
+                    y: r * sinTheta,
+                    z: (R + r * cosTheta) * sinPhi,
+                });
+            }
+        }
+        return verts;
+    })(),
+
+    edges: (() => {
+        const edges = [];
+        const majorSegments = 12;
+        const minorSegments = 6;
+
+        for (let i = 0; i < majorSegments; i++) {
+            for (let j = 0; j < minorSegments; j++) {
+                const current = i * minorSegments + j;
+                const nextMinor = i * minorSegments + (j + 1) % minorSegments;
+                const nextMajor = ((i + 1) % majorSegments) * minorSegments + j;
+
+                // Loop along tube (minor)
+                edges.push([current, nextMinor]);
+                // Loop around ring (major)
+                edges.push([current, nextMajor]);
+            }
+        }
+        return edges;
+    })(),
+    v_color: "orange",
+    e_color: "cyan",
+    v_size: 4,
+    e_size: 2,
+};
