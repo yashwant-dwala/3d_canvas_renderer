@@ -1,43 +1,43 @@
-export function rotate_xz({x,y,z}, angle){
+export function rotate_xz({ x, y, z }, angle) {
     const c = Math.cos(angle)
     const s = Math.sin(angle)
     return {
-        x: x*c - z*s,
+        x: x * c - z * s,
         y,
-        z: x*s + z*c,
+        z: x * s + z * c,
     }
 }
 
-export function rotate_yz({x,y,z}, angle){
+export function rotate_yz({ x, y, z }, angle) {
     const c = Math.cos(angle)
     const s = Math.sin(angle)
     return {
         x,
-        y: y*c - z*s,
-        z: y*s + z*c,
+        y: y * c - z * s,
+        z: y * s + z * c,
     }
 }
 
-export function rotate_xy({x,y,z}, angle){
+export function rotate_xy({ x, y, z }, angle) {
     const c = Math.cos(angle)
     const s = Math.sin(angle)
     return {
-        x: x*c - y*s,
-        y: x*s + y*c,
+        x: x * c - y * s,
+        y: x * s + y * c,
         z,
     }
 }
 
-export function rotate_X_Y_Z_axis({x,y,z}, angle){
-    return rotate_xy(rotate_yz(rotate_xz({x,y,z}, angle), angle), angle)
+export function rotate_X_Y_Z_axis({ x, y, z }, angle) {
+    return rotate_xy(rotate_yz(rotate_xz({ x, y, z }, angle), angle), angle)
 }
 
 
 
-export function move_model(model, offset){
+export function move_model(model, offset) {
     return {
         vertices: model.vertices.map(v => ({
-            x: v.x + offset.x,  
+            x: v.x + offset.x,
             y: v.y + offset.y,
             z: v.z + offset.z,
         })),
@@ -45,12 +45,17 @@ export function move_model(model, offset){
     }
 }
 
-export function scale_model(model, factor){
+export function scale_model(model, factor) {
+    // Support non-uniform scale if factor is object {x,y,z}, else uniform
+    const sx = typeof factor === 'number' ? factor : factor.x;
+    const sy = typeof factor === 'number' ? factor : factor.y;
+    const sz = typeof factor === 'number' ? factor : factor.z;
+
     return {
         vertices: model.vertices.map(v => ({
-            x: v.x * factor,  
-            y: v.y * factor,
-            z: v.z * factor,
+            x: v.x * sx,
+            y: v.y * sy,
+            z: v.z * sz,
         })),
         edges: model.edges.map(e => [...e])
     }

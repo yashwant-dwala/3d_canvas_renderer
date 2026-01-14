@@ -6,16 +6,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D Canvas Renderer</title>
     <link rel="stylesheet" href="index.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
 </head>
 
 <body>
     <canvas id="game"></canvas>
 
-    <!-- Scene Explorer Sidebar -->
-    <div class="sidebar">
-        <div class="sidebar-header">SCENE EXPLORER</div>
-        <div id="modelList" class="model-list">
-            <!-- Items injected by JS -->
+    <!-- Workspace Container (Activity Bar + Panel) -->
+    <div class="activity-bar">
+        <div class="activity-icon active" id="tabExplorer" title="Explorer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+        </div>
+        <div class="activity-icon" id="tabShapes" title="Shapes">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path
+                    d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                </path>
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            </svg>
+        </div>
+    </div>
+
+    <div class="side-panel" id="sidePanel">
+        <div class="panel-header">
+            <span id="panelTitle">EXPLORER</span>
+            <svg id="panelToggle" class="toggle-icon-min" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </div>
+
+        <!-- Explorer View -->
+        <div id="explorerView" class="view-content">
+            <div id="modelList" class="model-list"></div>
+        </div>
+
+        <!-- Shapes View -->
+        <div id="shapesView" class="view-content" style="display:none;">
+            <div class="shapes-grid">
+                <div class="shape-card" onclick="addModel('Cube')">
+                    <div class="shape-preview cube-preview"></div>
+                    <span>Cube</span>
+                </div>
+                <div class="shape-card" onclick="addModel('Sphere')">
+                    <div class="shape-preview sphere-preview"></div>
+                    <span>Sphere</span>
+                </div>
+                <div class="shape-card" onclick="addModel('Cylinder')">
+                    <div class="shape-preview cylinder-preview"></div>
+                    <span>Cylinder</span>
+                </div>
+                <div class="shape-card" onclick="addModel('Torus')">
+                    <div class="shape-preview torus-preview"></div>
+                    <span>Torus</span>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -51,7 +102,16 @@
             </svg>
             <span class="tooltip">Hold R to Rotate</span>
         </button>
+        <button id="scaleToggle" title="Hold S to scale">
+            <svg class="rotate-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" stroke="#50FF50" />
+            </svg>
+            <span class="tooltip">Hold S to Scale</span>
+        </button>
     </div>
+
+    <div id="signature" class="signature"></div>
 
     <script type="module" src="index.js"></script>
 </body>

@@ -1,4 +1,4 @@
-import { BLACK, CUBE_MODEL, AXIS, RED, GREY, GREEN, YELLOW, BLUE, CIRCLE_MODEL, CYLINDER_MODEL, SPHERE_MODEL } from './models.js';
+import { BLACK, CUBE_MODEL, AXIS, RED, GREY, GREEN, YELLOW, BLUE, CIRCLE_MODEL, CYLINDER_MODEL, SPHERE_MODEL, TORUS_MODEL } from './models.js';
 import { move_model, scale_model, rotate_X_Y_Z_axis, rotate_xy, rotate_xz, rotate_yz } from "./model_coordinate_calculation.js"
 
 game.width = window.innerWidth  // W
@@ -54,31 +54,15 @@ function translate_z({ x, y, z }, dz) { // zooom out-in
 
 
 // Scene State
-const sceneObjects = [
+let sceneObjects = [
     {
         name: "Cube",
         model: CUBE_MODEL,
-        position: { x: -2, y: 0, z: 0 },
+        position: { x: 0, y: 0, z: 0 },
         rotation: { x: 0, y: 0, z: 0 },
-        scale: 1,
+        scale: { x: 1, y: 1, z: 1 },
         color: { v: RED, e: GREEN }
     },
-    {
-        name: "Sphere",
-        model: SPHERE_MODEL,
-        position: { x: 2, y: 0, z: 0 },
-        rotation: { x: 0, y: 0, z: 0 },
-        scale: 1,
-        color: { v: YELLOW, e: BLUE }
-    },
-    {
-        name: "Cylinder",
-        model: CYLINDER_MODEL,
-        position: { x: 0, y: -2, z: 0 },
-        rotation: { x: 0, y: 0, z: 0 },
-        scale: 1,
-        color: { v: GREEN, e: RED }
-    }
 ];
 
 let selectedIndices = new Set([0]); // Set of selected model indices (default first)
@@ -93,13 +77,19 @@ const camera = {
 // Toggle States
 let rotationMode = false; // Object Rotation (R key)
 let moveMode = false;     // Object Movement (G key)
+let scaleMode = false;    // Object Scale (S key)
+let lockedAxis = null;    // Axis constraint (X/Y keys)
 
 // Get toggle buttons
-const rotateToggle = document.getElementById('rotateToggle'); // Reuse for Object Rotation indicator
+const rotateToggle = document.getElementById('rotateToggle');
 const moveToggle = document.getElementById('moveToggle');
+const scaleToggle = document.getElementById('scaleToggle');
 
 // Input Handling
 document.addEventListener('keydown', (e) => {
+    // Axis Constraints
+    if (e.key === 'x' || e.key === 'X') lockedAxis = 'x';
+    if (e.key === 'y' || e.key === 'Y') lockedAxis = 'y';
     // R: Object Rotation
     if (e.key === 'r' || e.key === 'R') {
         if (!rotationMode) {
@@ -114,9 +104,18 @@ document.addEventListener('keydown', (e) => {
             moveToggle.classList.add('active');
         }
     }
+    // S: Object Scale
+    if (e.key === 's' || e.key === 'S') {
+        if (!scaleMode) {
+            scaleMode = true;
+            scaleToggle.classList.add('active');
+        }
+    }
     // Tab: Cycle Selection (Select next single item)
     if (e.key === 'Tab') {
         e.preventDefault();
+        if (sceneObjects.length === 0) return;
+
         // find first selected or 0
         let current = selectedIndices.values().next().value || 0;
         let next = (current + 1) % sceneObjects.length;
@@ -126,6 +125,14 @@ document.addEventListener('keydown', (e) => {
 
         console.log("Selected:", sceneObjects[next].name);
         updateSceneExplorer();
+    }
+
+    // Ctrl + D: Delete Selected
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'd' || e.key === 'D')) {
+        e.preventDefault();
+        if (selectedIndices.size > 0) {
+            deleteModels(Array.from(selectedIndices));
+        }
     }
 });
 
@@ -138,7 +145,94 @@ document.addEventListener('keyup', (e) => {
         moveMode = false;
         moveToggle.classList.remove('active');
     }
+    if (e.key === 's' || e.key === 'S') {
+        scaleMode = false;
+        scaleToggle.classList.remove('active');
+    }
+
+    // Release Axis Lock
+    if (e.key === 'x' || e.key === 'X' && lockedAxis === 'x') {
+        lockedAxis = null;
+    }
+    if (e.key === 'y' || e.key === 'Y' && lockedAxis === 'y') {
+        lockedAxis = null;
+    }
 });
+
+// Activity View Logic
+const tabExplorer = document.getElementById('tabExplorer');
+const tabShapes = document.getElementById('tabShapes');
+const explorerView = document.getElementById('explorerView');
+const shapesView = document.getElementById('shapesView');
+const panelTitle = document.getElementById('panelTitle');
+const sidePanel = document.getElementById('sidePanel');
+const panelToggle = document.getElementById('panelToggle');
+
+function switchView(view) {
+    if (view === 'explorer') {
+        tabExplorer.classList.add('active');
+        tabShapes.classList.remove('active');
+        explorerView.style.display = 'block';
+        shapesView.style.display = 'none';
+        panelTitle.textContent = 'EXPLORER';
+    } else {
+        tabExplorer.classList.remove('active');
+        tabShapes.classList.add('active');
+        explorerView.style.display = 'none';
+        shapesView.style.display = 'block';
+        panelTitle.textContent = 'SHAPES';
+    }
+    sidePanel.classList.remove('collapsed');
+}
+
+if (tabExplorer) tabExplorer.addEventListener('click', () => switchView('explorer'));
+if (tabShapes) tabShapes.addEventListener('click', () => switchView('shapes'));
+
+if (panelToggle) {
+    panelToggle.addEventListener('click', () => {
+        sidePanel.classList.toggle('collapsed');
+    });
+}
+
+// Global function for adding models (called from HTML)
+window.addModel = function (type) {
+    let newModel = null;
+    let color = { v: "#FFF", e: "#FFF" };
+
+    // Choose Model Type
+    if (type === 'Cube') {
+        newModel = CUBE_MODEL;
+        color = { v: RED, e: GREEN };
+    }
+    else if (type === 'Sphere') {
+        newModel = SPHERE_MODEL;
+        color = { v: YELLOW, e: BLUE };
+    }
+    else if (type === 'Cylinder') {
+        newModel = CYLINDER_MODEL;
+        color = { v: GREEN, e: RED };
+    }
+    else if (type === 'Torus') {
+        newModel = TORUS_MODEL;
+        color = { v: "orange", e: "cyan" };
+    }
+
+    if (newModel) {
+        sceneObjects.push({
+            name: type,
+            model: newModel,
+            position: { x: 0, y: 0, z: 0 },
+            rotation: { x: 0, y: 0, z: 0 },
+            scale: { x: 1, y: 1, z: 1 },
+            color: color
+        });
+
+        // Select the new object
+        selectedIndices.clear();
+        selectedIndices.add(sceneObjects.length - 1);
+        updateSceneExplorer();
+    }
+};
 
 // Mouse Interaction
 let lastX = 0;
@@ -157,16 +251,77 @@ game.addEventListener("mousemove", (e) => {
     const dy = e.clientY - lastY;
 
     if (moveMode) {
-        // Transform the Active Object (Position)
-        const obj = sceneObjects[activeObjectIndex];
-        obj.position.x += dx * moveSensitivity;
-        obj.position.y -= dy * moveSensitivity;
+        // Transform Selected Objects (Position)
+        selectedIndices.forEach(index => {
+            const obj = sceneObjects[index];
+            if (lockedAxis === 'x') {
+                obj.position.x += dx * moveSensitivity;
+            } else if (lockedAxis === 'y') {
+                obj.position.y -= dy * moveSensitivity;
+            } else {
+                obj.position.x += dx * moveSensitivity;
+                obj.position.y -= dy * moveSensitivity;
+            }
+        });
     }
-    else if (rotationMode) {
-        // Transform the Active Object (Rotation)
-        const obj = sceneObjects[activeObjectIndex];
-        obj.rotation.x -= dy * sensitivity; // Pitch
-        obj.rotation.y += dx * sensitivity; // Yaw
+    else if (rotationMode && selectedIndices.size > 0) {
+        // Group Rotation Logic
+
+        // 1. Calculate Centroid
+        let cx = 0, cy = 0, cz = 0;
+        selectedIndices.forEach(index => {
+            const pos = sceneObjects[index].position;
+            cx += pos.x;
+            cy += pos.y;
+            cz += pos.z;
+        });
+        const count = selectedIndices.size;
+        const centroid = { x: cx / count, y: cy / count, z: cz / count };
+
+        // 2. Apply Rotation
+        const dTheta = (lockedAxis === 'x') ? 0 : dx * sensitivity; // Yaw (around Y)
+        const dPhi = (lockedAxis === 'y') ? 0 : -dy * sensitivity;  // Pitch (around X)
+
+        selectedIndices.forEach(index => {
+            const obj = sceneObjects[index];
+
+            // A. Update Local Rotation (Orientation)
+            obj.rotation.x += dPhi;
+            obj.rotation.y += dTheta;
+
+            // B. Update Position (Orbit around Centroid)
+            let rel = {
+                x: obj.position.x - centroid.x,
+                y: obj.position.y - centroid.y,
+                z: obj.position.z - centroid.z
+            };
+
+            // Rotate relative vector (Yaw then Pitch)
+            rel = rotate_xz(rel, dTheta);
+            rel = rotate_yz(rel, dPhi);
+
+            // Apply new position
+            obj.position.x = centroid.x + rel.x;
+            obj.position.y = centroid.y + rel.y;
+            obj.position.z = centroid.z + rel.z;
+        });
+    }
+    else if (scaleMode) {
+        // Transform Selected Objects (Scale)
+        const dScale = dy * 0.01;
+        selectedIndices.forEach(index => {
+            const obj = sceneObjects[index];
+            if (lockedAxis === 'x') {
+                obj.scale.x = Math.max(0.1, obj.scale.x + dScale);
+            } else if (lockedAxis === 'y') {
+                obj.scale.y = Math.max(0.1, obj.scale.y + dScale);
+            } else {
+                // Uniform
+                obj.scale.x = Math.max(0.1, obj.scale.x + dScale);
+                obj.scale.y = Math.max(0.1, obj.scale.y + dScale);
+                obj.scale.z = Math.max(0.1, obj.scale.z + dScale);
+            }
+        });
     }
     else {
         // Default: Camera Orbit
@@ -200,21 +355,19 @@ game.addEventListener("wheel", (e) => {
 
 // Reset Button
 document.getElementById('resetButton').addEventListener('click', () => {
-    camera.theta = 0;
-    camera.phi = 0;
-    camera.distance = 4;
-    // Reset all objects
-    sceneObjects.forEach(obj => {
-        obj.rotation = { x: 0, y: 0, z: 0 };
-    });
-    // Hard reset positions
-    sceneObjects[0].position = { x: -2, y: 0, z: 0 };
-    sceneObjects[1].position = { x: 2, y: 0, z: 0 };
-    sceneObjects[2].position = { x: 0, y: -2, z: 0 };
-
-    // Reset selection
-    activeObjectIndex = 0;
-    updateSceneExplorer();
+    if (selectedIndices.size > 0) {
+        // Reset ONLY Selected Objects
+        selectedIndices.forEach(index => {
+            const obj = sceneObjects[index];
+            obj.rotation = { x: 0, y: 0, z: 0 };
+            obj.position = { x: 0, y: 0, z: 0 };
+        });
+    } else {
+        // Reset Camera (No objects selected)
+        camera.theta = 0;
+        camera.phi = 0;
+        camera.distance = 4;
+    }
 });
 
 function apply_camera(p) {
@@ -280,6 +433,20 @@ function camera_renderer(model, custom_properties) {
 
 
 
+// Helper to delete models
+function deleteModels(indices) {
+    if (indices.length === 0) return;
+
+    // Use Set for efficient lookup is redundant for small arrays but good practice
+    const toDelete = new Set(indices);
+    sceneObjects = sceneObjects.filter((_, i) => !toDelete.has(i));
+
+    // Clear selection as indices have changed
+    selectedIndices.clear();
+    updateSceneExplorer();
+}
+
+
 // Scene Explorer Logic
 function updateSceneExplorer() {
     const list = document.getElementById('modelList');
@@ -323,7 +490,26 @@ function updateSceneExplorer() {
             <line x1="10" y1="9" x2="8" y2="9"></line>
         </svg>`;
 
+        // Delete Icon SVG
+        // Note: Using event.stopPropagation defined in onclick embedded in HTML string requires global scope,
+        // which modules don't provide on window. 
+        // So we append it as an element.
+
         item.innerHTML = icon + `<span>${obj.name}</span>`;
+
+        const delBtn = document.createElement('div');
+        delBtn.className = 'delete-btn';
+        delBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        </svg>`;
+
+        delBtn.onclick = (e) => {
+            e.stopPropagation(); // Prevent row selection
+            deleteModels([index]);
+        };
+
+        item.appendChild(delBtn);
         list.appendChild(item);
     });
 }
@@ -345,6 +531,9 @@ function frame() {
         // 1. Get Base Model
         let currentModel = obj.model;
 
+        // 1.5 Apply Object Scale
+        currentModel = scale_model(currentModel, obj.scale);
+
         // 2. Apply Object Rotation
         // Rotate vertices around object center (0,0,0) before translation
         currentModel = {
@@ -361,7 +550,7 @@ function frame() {
 
         // 4. Highlight Selected Object
         let style = { v_color: obj.color.v, e_color: obj.color.e };
-        if (i === activeObjectIndex) {
+        if (selectedIndices.has(i)) {
             style.e_color = "#FFFFFF"; // White edges for selected
             style.v_size = 6;
             style.e_size = 3;
@@ -381,8 +570,29 @@ setTimeout(frame, 1000 / FPS)
 
 
 
-// rendring done
-// scale done
-// camera movement  (check correctly)
-// translate (check correctly)
-// select a model
+// Signature typing effect
+function typeSignature() {
+    const text = "Rasterizer by Yashwant Dwala.";
+    const signatureElement = document.getElementById('signature');
+    if (!signatureElement) return;
+
+    let i = 0;
+    signatureElement.innerHTML = "";
+
+    function type() {
+        if (i < text.length) {
+            signatureElement.innerHTML += text.charAt(i);
+            i++;
+            setTimeout(type, 100);
+        } else {
+            // Typing complete, remove cursor
+            signatureElement.classList.add('finished');
+        }
+    }
+
+    // Start typing after a small delay
+    setTimeout(type, 1000);
+}
+
+// Start signature animation
+typeSignature();

@@ -8,74 +8,213 @@ body {
     overflow: hidden;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     color: #cccccc;
+    background: #111;
 }
 
 #game {
     display: block;
 }
 
-/* Sidebar Styling */
-.sidebar {
+/* Sidebar Layout */
+.activity-bar {
     position: fixed;
     top: 0;
     left: 0;
-    width: 250px;
+    width: 50px;
     height: 100vh;
-    background: #1e1e1e;
-    /* VS Code sidebar bg */
-    border-right: 1px solid #333;
+    background: #333333;
+    border-right: 1px solid #1e1e1e;
+    z-index: 102;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 10px;
+}
+
+.activity-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.2s, border 0.2s;
+    border-left: 2px solid transparent;
+}
+
+.activity-icon:hover {
+    opacity: 1;
+}
+
+.activity-icon.active {
+    opacity: 1;
+    border-left-color: #ffffff;
+}
+
+.activity-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* Side Panel */
+.side-panel {
+    position: fixed;
+    top: 0;
+    left: 50px;
+    width: 200px;
+    height: 100vh;
+    background: #252526;
+    border-right: 1px solid #1e1e1e;
     z-index: 100;
     display: flex;
     flex-direction: column;
+    transition: transform 0.2s ease;
 }
 
-.sidebar-header {
-    padding: 10px 20px;
+.side-panel.collapsed {
+    transform: translateX(-200px);
+}
+
+.panel-header {
+    height: 35px;
+    padding: 0 15px;
     font-size: 11px;
     font-weight: bold;
     color: #bbbbbb;
     letter-spacing: 1px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     background: #252526;
-    /* VS Code header bg */
-    border-bottom: 1px solid #1e1e1e;
 }
 
-.model-list {
+.toggle-icon-min {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+.toggle-icon-min:hover {
+    opacity: 1;
+}
+
+.view-content {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* List Styles */
+.model-list {
     padding-top: 5px;
 }
 
 .model-item {
-    padding: 8px 20px;
+    padding: 8px 10px;
     font-size: 13px;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 8px;
-    transition: background 0.1s ease;
-    border-left: 2px solid transparent;
-    /* Selection indicator */
+    gap: 10px;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+    height: 36px;
+    color: #cccccc;
+    white-space: nowrap;
 }
 
 .model-item:hover {
     background: #2a2d2e;
-    /* VS Code hover list item */
 }
 
 .model-item.active {
     background: #37373d;
-    /* VS Code selected item */
     color: #ffffff;
     border-left-color: #50FF50;
-    /* Green accent */
 }
 
-/* Icon for model item */
 .model-icon {
     width: 16px;
     height: 16px;
     opacity: 0.8;
+}
+
+.delete-btn {
+    width: 16px;
+    height: 16px;
+    margin-left: auto;
+    opacity: 0;
+    transition: opacity 0.1s;
+    cursor: pointer;
+    color: #999;
+}
+
+.model-item:hover .delete-btn {
+    opacity: 1;
+}
+
+.delete-btn:hover {
+    color: #ff6b6b;
+}
+
+/* Shapes Grid */
+.shapes-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 10px;
+}
+
+.shape-card {
+    background: #37373d;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.shape-card:hover {
+    background: #2a2d2e;
+}
+
+.shape-card span {
+    font-size: 13px;
+    color: #cccccc;
+}
+
+.shape-preview {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #555;
+    background: #333;
+}
+
+.cube-preview {
+    background-color: #ff6b6b;
+    opacity: 0.5;
+}
+
+.sphere-preview {
+    border-radius: 50%;
+    background-color: #feca57;
+    opacity: 0.5;
+}
+
+.cylinder-preview {
+    border-radius: 20%;
+    background-color: #1dd1a1;
+    opacity: 0.5;
+}
+
+.torus-preview {
+    border-radius: 50%;
+    border: 4px solid #ff9f43;
+    background-color: transparent;
+    opacity: 0.7;
 }
 
 /* Toggle button container */
@@ -88,7 +227,6 @@ body {
     gap: 12px;
 }
 
-/* Button styling (applies to all control buttons) */
 .controls button {
     width: 60px;
     height: 60px;
@@ -103,7 +241,6 @@ body {
     transition: all 0.3s ease;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     position: relative;
-    /* Needed for absolute tooltip positioning relative to button */
 }
 
 .controls button:hover {
@@ -113,22 +250,19 @@ body {
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
 }
 
-#rotateToggle.active {
-    background: rgba(80, 255, 80, 0.2);
-    border-color: #50FF50;
-}
-
-#moveToggle.active {
+#rotateToggle.active,
+#moveToggle.active,
+#scaleToggle.active {
     background: rgba(80, 255, 80, 0.2);
     border-color: #50FF50;
 }
 
 #rotateToggle.active:hover,
-#moveToggle.active:hover {
+#moveToggle.active:hover,
+#scaleToggle.active:hover {
     background: rgba(80, 255, 80, 0.3);
 }
 
-/* Rotate icon */
 .rotate-icon {
     width: 32px;
     height: 32px;
@@ -150,11 +284,9 @@ body {
     }
 }
 
-/* Tooltip */
 .tooltip {
     position: absolute;
     right: 70px;
-    /* Position to the left of the button */
     top: 50%;
     transform: translateY(-50%);
     background: rgba(0, 0, 0, 0.9);
@@ -169,7 +301,48 @@ body {
     z-index: 2000;
 }
 
-/* Show tooltip on button hover */
 .controls button:hover .tooltip {
     opacity: 1;
+}
+
+.signature {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    font-family: 'Great Vibes', cursive;
+    font-size: 28px;
+    color: #50FF50;
+    text-shadow: 0 0 10px rgba(80, 255, 80, 0.4);
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.9;
+    user-select: none;
+    background: rgba(16, 16, 16, 0.4);
+    padding: 5px 15px;
+    border-radius: 10px;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(80, 255, 80, 0.1);
+}
+
+.signature::after {
+    content: '|';
+    margin-left: 2px;
+    animation: blink 0.8s infinite;
+}
+
+.signature.finished::after {
+    content: '';
+    display: none;
+}
+
+@keyframes blink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
 }
