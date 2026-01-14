@@ -304,3 +304,45 @@ body {
 .controls button:hover .tooltip {
     opacity: 1;
 }
+
+.signature {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    font-family: 'Great Vibes', cursive;
+    font-size: 28px;
+    color: #50FF50;
+    text-shadow: 0 0 10px rgba(80, 255, 80, 0.4);
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.9;
+    user-select: none;
+    background: rgba(16, 16, 16, 0.4);
+    padding: 5px 15px;
+    border-radius: 10px;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(80, 255, 80, 0.1);
+}
+
+.signature::after {
+    content: '|';
+    margin-left: 2px;
+    animation: blink 0.8s infinite;
+}
+
+.signature.finished::after {
+    content: '';
+    display: none;
+}
+
+@keyframes blink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+}

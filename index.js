@@ -570,8 +570,29 @@ setTimeout(frame, 1000 / FPS)
 
 
 
-// rendring done
-// scale done
-// camera movement  (check correctly)
-// translate (check correctly)
-// select a model
+// Signature typing effect
+function typeSignature() {
+    const text = "Rasterizer by Yashwant Dwala.";
+    const signatureElement = document.getElementById('signature');
+    if (!signatureElement) return;
+
+    let i = 0;
+    signatureElement.innerHTML = "";
+
+    function type() {
+        if (i < text.length) {
+            signatureElement.innerHTML += text.charAt(i);
+            i++;
+            setTimeout(type, 100);
+        } else {
+            // Typing complete, remove cursor
+            signatureElement.classList.add('finished');
+        }
+    }
+
+    // Start typing after a small delay
+    setTimeout(type, 1000);
+}
+
+// Start signature animation
+typeSignature();
