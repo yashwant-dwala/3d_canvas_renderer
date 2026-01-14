@@ -1,0 +1,175 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #cccccc;
+}
+
+#game {
+    display: block;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100vh;
+    background: #1e1e1e;
+    /* VS Code sidebar bg */
+    border-right: 1px solid #333;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header {
+    padding: 10px 20px;
+    font-size: 11px;
+    font-weight: bold;
+    color: #bbbbbb;
+    letter-spacing: 1px;
+    background: #252526;
+    /* VS Code header bg */
+    border-bottom: 1px solid #1e1e1e;
+}
+
+.model-list {
+    flex: 1;
+    overflow-y: auto;
+    padding-top: 5px;
+}
+
+.model-item {
+    padding: 8px 20px;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.1s ease;
+    border-left: 2px solid transparent;
+    /* Selection indicator */
+}
+
+.model-item:hover {
+    background: #2a2d2e;
+    /* VS Code hover list item */
+}
+
+.model-item.active {
+    background: #37373d;
+    /* VS Code selected item */
+    color: #ffffff;
+    border-left-color: #50FF50;
+    /* Green accent */
+}
+
+/* Icon for model item */
+.model-icon {
+    width: 16px;
+    height: 16px;
+    opacity: 0.8;
+}
+
+/* Toggle button container */
+.controls {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    gap: 12px;
+}
+
+/* Button styling (applies to all control buttons) */
+.controls button {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    background: rgba(30, 30, 30, 0.8);
+    backdrop-filter: blur(10px);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    position: relative;
+    /* Needed for absolute tooltip positioning relative to button */
+}
+
+.controls button:hover {
+    background: rgba(40, 40, 40, 0.9);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+#rotateToggle.active {
+    background: rgba(80, 255, 80, 0.2);
+    border-color: #50FF50;
+}
+
+#moveToggle.active {
+    background: rgba(80, 255, 80, 0.2);
+    border-color: #50FF50;
+}
+
+#rotateToggle.active:hover,
+#moveToggle.active:hover {
+    background: rgba(80, 255, 80, 0.3);
+}
+
+/* Rotate icon */
+.rotate-icon {
+    width: 32px;
+    height: 32px;
+    transition: all 0.3s ease;
+}
+
+#rotateToggle.active .rotate-icon {
+    filter: brightness(1.5);
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Tooltip */
+.tooltip {
+    position: absolute;
+    right: 70px;
+    /* Position to the left of the button */
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 2000;
+}
+
+/* Show tooltip on button hover */
+.controls button:hover .tooltip {
+    opacity: 1;
+}

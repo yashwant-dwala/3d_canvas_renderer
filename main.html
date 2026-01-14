@@ -1,4 +1,59 @@
-<canvas id="game"></canvas>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Canvas Renderer</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+
 <body>
+    <canvas id="game"></canvas>
+
+    <!-- Scene Explorer Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">SCENE EXPLORER</div>
+        <div id="modelList" class="model-list">
+            <!-- Items injected by JS -->
+        </div>
+    </div>
+
+    <div class="controls">
+        <button id="resetButton" title="Reset camera rotation">
+            <svg class="rotate-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="#50FF50" />
+                <polyline points="9 22 9 12 15 12 15 22" stroke="#50FF50" />
+            </svg>
+            <span class="tooltip">Reset View</span>
+        </button>
+
+        <button id="moveToggle" title="Hold G to move model">
+            <svg class="rotate-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="5 9 2 12 5 15" stroke="#50FF50" />
+                <polyline points="9 5 12 2 15 5" stroke="#50FF50" />
+                <polyline points="15 19 12 22 9 19" stroke="#50FF50" />
+                <polyline points="19 15 22 12 19 9" stroke="#50FF50" />
+                <path d="M2 12h20M12 2v20" stroke="#50FF50" />
+            </svg>
+            <span class="tooltip">Hold G to Move</span>
+        </button>
+
+        <button id="rotateToggle" title="Hold R to rotate camera">
+            <svg class="rotate-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" stroke="#50FF50" />
+                <path d="M2 12h20" stroke="#50FF50" />
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+                    stroke="#50FF50" />
+            </svg>
+            <span class="tooltip">Hold R to Rotate</span>
+        </button>
+    </div>
+
     <script type="module" src="index.js"></script>
 </body>
+
+</html>
